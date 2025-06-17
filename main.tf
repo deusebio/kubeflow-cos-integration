@@ -14,10 +14,26 @@ module "cos" {
   model = juju_model.cos.name
 }
 
+resource "juju_model" "kubeflow" {
+  name       = "kubeflow"
+  credential = var.K8S_CREDENTIAL
+  cloud {
+    name = var.K8S_CLOUD
+  }
+  config = {
+    juju-http-proxy = var.HTTP_PROXY
+    juju-https-proxy = var.HTTPS_PROXY
+    no-proxy = var.NO_PROXY
+  }
+}
+
 module "kubeflow_bundle" {
   source     = "git::https://github.com/canonical/charmed-kubeflow-solutions//modules/kubeflow-mlflow?ref=track/1.10"
-  create_model = true
+  create_model = false
   cos_configuration = true
+  http_proxy = var.HTTP_PROXY
+  https_proxy = var.HTTPS_PROXY
+  no_proxy = var.NO_PROXY
 }
 
 
@@ -32,7 +48,7 @@ resource "juju_integration" "agent_grafana_dashboards" {
   }
 
   application {
-    offer_url = module.cos.offers.grafana
+    offer_url = module.cos.offers.grafana_dashboards.url
   }
 
 }
@@ -46,7 +62,7 @@ resource "juju_integration" "agent_prometheus" {
   }
 
   application {
-    offer_url = module.cos.offers.prometheus
+    offer_url = module.cos.offers.prometheus.url
   }
 
 }
@@ -60,7 +76,7 @@ resource "juju_integration" "agent_loki" {
   }
 
   application {
-    offer_url = module.cos.offers.loki
+    offer_url = module.cos.offers.loki_logging.url
   }
 
 }
