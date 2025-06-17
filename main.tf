@@ -28,6 +28,7 @@ resource "juju_model" "kubeflow" {
 }
 
 module "kubeflow_bundle" {
+  depends_on = [juju_model.kubeflow]
   source     = "git::https://github.com/canonical/charmed-kubeflow-solutions//modules/kubeflow-mlflow?ref=track/1.10"
   create_model = false
   cos_configuration = true
