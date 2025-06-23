@@ -9,9 +9,11 @@ resource "juju_model" "cos" {
 
 module "cos" {
   depends_on = [juju_model.cos]
-  source     = "git::https://github.com/deusebio/observability//terraform/modules/cos-lite?ref=wip-fix-kf-cos-integration"
+  source     = "git::https://github.com/canonical/observability-stack//terraform/cos-lite"
   # source = "./observability/terraform/modules/cos-lite"
   model = juju_model.cos.name
+  channel = "1/stable"
+  use_tls = false
 }
 
 resource "juju_model" "kubeflow" {
@@ -20,11 +22,11 @@ resource "juju_model" "kubeflow" {
   cloud {
     name = var.K8S_CLOUD
   }
-  config = {
-    juju-http-proxy = var.HTTP_PROXY
-    juju-https-proxy = var.HTTPS_PROXY
-    no-proxy = var.NO_PROXY
-  }
+  # config = {
+  #  juju-http-proxy = var.HTTP_PROXY
+  #  juju-https-proxy = var.HTTPS_PROXY
+  #   no-proxy = var.NO_PROXY
+  # }
 }
 
 module "kubeflow_bundle" {
@@ -32,9 +34,9 @@ module "kubeflow_bundle" {
   source     = "git::https://github.com/canonical/charmed-kubeflow-solutions//modules/kubeflow-mlflow?ref=track/1.10"
   create_model = false
   cos_configuration = true
-  http_proxy = var.HTTP_PROXY
-  https_proxy = var.HTTPS_PROXY
-  no_proxy = var.NO_PROXY
+  # http_proxy = var.HTTP_PROXY
+  # https_proxy = var.HTTPS_PROXY
+  # no_proxy = var.NO_PROXY
 }
 
 
@@ -63,7 +65,7 @@ resource "juju_integration" "agent_prometheus" {
   }
 
   application {
-    offer_url = module.cos.offers.prometheus.url
+    offer_url = module.cos.offers.prometheus_receive_remote_write.url
   }
 
 }
