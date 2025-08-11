@@ -27,3 +27,21 @@ variable "K8S_CREDENTIAL" {
   type        = string
   description = "The name of the kubernetes juju credential."
 }
+
+variable "HTTP_PROXY" {
+  type = string
+  description = "Address for the http proxy"
+  default = ""
+}
+
+variable "HTTPS_PROXY" {
+  type = string
+  description = "Address for the https proxy"
+  default = ""
+}
+
+variable "NO_PROXY" {
+  type = string
+  description = "Addresses to not be proxies"
+  default = ""
+}
